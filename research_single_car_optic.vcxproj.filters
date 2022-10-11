@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="utility">
+      <UniqueIdentifier>{b525c68f-0154-4d8d-9636-e3906fe6e055}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="process">
+      <UniqueIdentifier>{5ce34ea8-a85d-4830-b7b6-0cfb5bf1e235}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="process\detector">
+      <UniqueIdentifier>{99bc2174-3405-4910-8e53-a37296c2672e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="utility\GuiHandler.cpp">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="process\CarDetector.cpp">
+      <Filter>process</Filter>
+    </ClCompile>
+    <ClCompile Include="process\detector\CornerDetector.cpp">
+      <Filter>process\detector</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="utility\GuiHandler.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\Renderer.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="process\CarDetector.h">
+      <Filter>process</Filter>
+    </ClInclude>
+    <ClInclude Include="process\DetectionTypes.h">
+      <Filter>process</Filter>
+    </ClInclude>
+    <ClInclude Include="process\detector\CornerDetector.h">
+      <Filter>process\detector</Filter>
+    </ClInclude>
+    <ClInclude Include="process\detector\Detector.h">
+      <Filter>process\detector</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
