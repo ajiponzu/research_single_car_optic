@@ -4,7 +4,7 @@
 
 int main()
 {
-	const int proc_imgsz = 80;
+	const int proc_imgsz = 40;
 	CarDetector carDetector(L"", cv::Size(proc_imgsz, proc_imgsz));
 
 	GuiHandler::Initialize();

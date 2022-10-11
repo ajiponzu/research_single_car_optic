@@ -11,11 +11,12 @@ public:
 	}
 
 	virtual std::vector<std::vector<Detection>>
-		Run(const cv::Mat& img);
+		Run(const cv::Mat& img, const cv::Rect& rect);
 
 private:
-	std::unique_ptr<BgController> mptr_bgController;
-	
-	cv::Mat BgSubtract(const cv::Mat& img, const cv::Mat& bg);
+	std::unique_ptr<BgController> mptr_bgController; 
+
+	void DetectCorners(const cv::Mat& img, std::vector<std::vector<Detection>>& corners);
+	cv::Mat BgSubtract(const cv::Mat& img, const cv::Mat& bg, const cv::Rect& rect);
 };
 

@@ -7,7 +7,7 @@ BgController::BgController()
 	mExHistory = mptrBgExtractor->getHistory();
 }
 
-void BgController::Create(const cv::Mat& frame, const int& frameCount)
+void BgController::Create(const cv::Mat& frame, const uint64_t& frameCount)
 {
 	if (frameCount < mExHistory)
 		CreateByMog2(frame);
