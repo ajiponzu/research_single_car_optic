@@ -22,6 +22,8 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="process\CarDetector.cpp" />
     <ClCompile Include="process\detector\CornerDetector.cpp" />
+    <ClCompile Include="process\detector\corner\BgController.cpp" />
+    <ClCompile Include="process\detector\corner\Utility.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -32,6 +34,8 @@
     <ClInclude Include="process\CarDetector.h" />
     <ClInclude Include="process\DetectionTypes.h" />
     <ClInclude Include="process\detector\CornerDetector.h" />
+    <ClInclude Include="process\detector\corner\BgController.h" />
+    <ClInclude Include="process\detector\corner\Utility.h" />
     <ClInclude Include="process\detector\Detector.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="utility\GuiHandler.h" />
