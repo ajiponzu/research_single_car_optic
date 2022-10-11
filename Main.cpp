@@ -26,7 +26,7 @@ int main()
 		if (GuiHandler::MouseClickedL() || GuiHandler::IsRunning())
 		{
 			const cv::Mat frame = GuiHandler::GetFrame();
-			//carDetector.Run(frame(target), target);
+			carDetector.Run(frame, target);
 		}
 
 		GuiHandler::Render();

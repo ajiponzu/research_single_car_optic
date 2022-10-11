@@ -73,7 +73,10 @@ bool GuiHandler::EventPoll()
 	{
 		s_videoCapture.read(s_currentFrame);
 		if (s_currentFrame.empty())
-			return false;
+		{
+			s_wndUpdate = false;
+			return s_wndUpdate;
+		}
 		s_frameCount++;
 	}
 	s_currentFrame.copyTo(s_displayImg);

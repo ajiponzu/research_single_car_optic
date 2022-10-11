@@ -10,6 +10,9 @@
     <Filter Include="process\detector">
       <UniqueIdentifier>{99bc2174-3405-4910-8e53-a37296c2672e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="process\detector\corner">
+      <UniqueIdentifier>{ae51134c-41df-4e9c-ab09-37cef4cd3ef3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -22,6 +25,12 @@
     </ClCompile>
     <ClCompile Include="process\detector\CornerDetector.cpp">
       <Filter>process\detector</Filter>
+    </ClCompile>
+    <ClCompile Include="process\detector\corner\BgController.cpp">
+      <Filter>process\detector\corner</Filter>
+    </ClCompile>
+    <ClCompile Include="process\detector\corner\Utility.cpp">
+      <Filter>process\detector\corner</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +52,12 @@
     </ClInclude>
     <ClInclude Include="process\detector\Detector.h">
       <Filter>process\detector</Filter>
+    </ClInclude>
+    <ClInclude Include="process\detector\corner\BgController.h">
+      <Filter>process\detector\corner</Filter>
+    </ClInclude>
+    <ClInclude Include="process\detector\corner\Utility.h">
+      <Filter>process\detector\corner</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
