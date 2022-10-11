@@ -6,10 +6,10 @@ CarDetector::CarDetector(const std::wstring& model_path, const cv::Size& proc_im
 	m_ptrDetector.reset(new CornerDetector());
 }
 
-void CarDetector::Run(const cv::Mat& img, const cv::Rect& rect)
+void CarDetector::Run(const cv::Mat& img)
 {
-	m_detectArea = rect;
-	m_detections = m_ptrDetector->Run(img, rect);
+	m_detectArea = m_usedDetectArea; // for rendering
+	m_detections = m_ptrDetector->Run(img, m_usedDetectArea);
 }
 
 void CarDetector::ThisRenderer::Render(cv::Mat& img)

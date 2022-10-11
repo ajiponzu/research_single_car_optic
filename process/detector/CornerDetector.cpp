@@ -4,7 +4,7 @@
 cv::Mat gKernel5 = cv::getStructuringElement(cv::MorphShapes::MORPH_RECT, cv::Size(5, 5));
 cv::Mat gRoadMask = cv::imread("resources/back_kaikai.png", cv::IMREAD_GRAYSCALE);
 
-std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, const cv::Rect& rect)
+std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::Rect2f& rect)
 {
 	std::vector<std::vector<Detection>> results{};
 	const auto& frame_count = GuiHandler::GetFrameCount();
@@ -15,6 +15,9 @@ std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cons
 
 	auto subtract = BgSubtract(img, mptr_bgController->GetBg(), rect);
 	DetectCorners(subtract, results);
+
+	rect += cv::Point2f(0.0f, 0.5f);
+	rect.y = std::clamp(rect.y, 0.0f, (float)img.rows - rect.height);
 
 	return results;
 }
@@ -28,7 +31,7 @@ void CornerDetector::DetectCorners(const cv::Mat& img, std::vector<std::vector<D
 	corners.push_back(corner);
 }
 
-cv::Mat CornerDetector::BgSubtract(const cv::Mat& img, const cv::Mat& bg, const cv::Rect& rect)
+cv::Mat CornerDetector::BgSubtract(const cv::Mat& img, const cv::Mat& bg, const cv::Rect2f& rect)
 {
 	cv::Mat ret{}, mask{};
 	cv::absdiff(img, bg, ret);
