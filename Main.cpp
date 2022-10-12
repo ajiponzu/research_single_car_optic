@@ -4,7 +4,7 @@
 
 int main()
 {
-	const int proc_imgsz = 80;
+	const int proc_imgsz = 30;
 	CarDetector carDetector(L"", cv::Size(proc_imgsz, proc_imgsz));
 
 	GuiHandler::Initialize();
@@ -12,7 +12,7 @@ int main()
 	GuiHandler::SetVideoResource("resources/yugata/input.mp4");
 	GuiHandler::SetRenderer(carDetector.CreateRenderer());
 
-	cv::Rect target(0, 0, 1920, 1080);
+	carDetector.SetRect(cv::Rect(0, 0, 1920, 1080));
 	while (GuiHandler::EventPoll())
 	{
 		if (GuiHandler::MouseClickedL())
@@ -20,13 +20,13 @@ int main()
 			const auto& [x, y] = GuiHandler::GetClickPoint();
 			cv::Point tl(std::max(0, x - proc_imgsz / 2), std::max(0, y - proc_imgsz / 2));
 			cv::Point br(std::min(1920, x + proc_imgsz / 2), std::min(1080, y + proc_imgsz / 2));
-			target = cv::Rect(tl, br);
+			carDetector.SetRect(cv::Rect(tl, br));
 		}
 
 		if (GuiHandler::MouseClickedL() || GuiHandler::IsRunning())
 		{
 			const cv::Mat frame = GuiHandler::GetFrame();
-			carDetector.Run(frame, target);
+			carDetector.Run(frame);
 		}
 
 		GuiHandler::Render();

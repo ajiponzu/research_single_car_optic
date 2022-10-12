@@ -12,7 +12,7 @@ private:
 public:
 	BgController();
 
-	void Create(const cv::Mat& frame, const int& frameCount);
+	void Create(const cv::Mat& frame, const uint64_t& frameCount);
 
 	const cv::Mat& GetBg() const { return mBg; }
 	const cv::Mat& GetSub() const { return mSub; }
