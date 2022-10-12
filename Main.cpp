@@ -12,7 +12,7 @@ int main()
 	GuiHandler::SetVideoResource("resources/yugata/input.mp4");
 	GuiHandler::SetRenderer(carDetector.CreateRenderer());
 
-	carDetector.SetRect(cv::Rect(0, 0, 1920, 1080));
+	//carDetector.SetRect(cv::Rect(0, 0, 1920, 1080));
 	while (GuiHandler::EventPoll())
 	{
 		if (GuiHandler::MouseClickedL())

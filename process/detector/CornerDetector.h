@@ -15,7 +15,7 @@ public:
 
 private:
 	std::unique_ptr<BgController> mptr_bgController;
-	std::vector<Detection> m_corners;
-
+	cv::Mat m_prevSubtracted;
+	
 	void DetectCorners(const cv::Mat& img, std::vector<std::vector<Detection>>& corners_list, const cv::Rect& target_rect);
 };

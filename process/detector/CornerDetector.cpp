@@ -1,8 +1,8 @@
 #include "CornerDetector.h"
 #include "../../utility/GuiHandler.h"
 
-cv::Mat gKernel5 = cv::getStructuringElement(cv::MorphShapes::MORPH_RECT, cv::Size(3, 3));
-cv::Mat gRoadMask = cv::imread("resources/back_kaikai.png", cv::IMREAD_GRAYSCALE);
+cv::Mat gKernel = cv::getStructuringElement(cv::MorphShapes::MORPH_RECT, cv::Size(3, 3));
+cv::Mat gRoadMask = cv::imread("resources/back_kaikai.png", cv::IMREAD_COLOR);
 
 cv::Point minPoint(const std::vector<cv::Point>& contours)
 {
@@ -46,13 +46,11 @@ cv::Point calcRectCenter(const cv::Rect& rect)
 	return cv::Point(cx, cy);
 }
 
-void localBinarize(cv::Mat& local_ret, cv::Mat& local_mask)
+void localBinarize(cv::Mat& local_ret)
 {
-	cv::threshold(local_mask, local_mask, 0, 255, cv::THRESH_OTSU);
-	cv::morphologyEx(local_mask, local_mask, cv::MORPH_CLOSE, gKernel5, cv::Point(-1, -1), 2);
-	cv::morphologyEx(local_mask, local_mask, cv::MORPH_OPEN, gKernel5, cv::Point(-1, -1), 2);
-	cv::bitwise_and(local_ret, local_mask, local_ret);
-	cv::threshold(local_ret, local_ret, 0, 255, cv::THRESH_BINARY);
+	cv::threshold(local_ret, local_ret, 0, 255, cv::THRESH_OTSU);
+	cv::morphologyEx(local_ret, local_ret, cv::MORPH_CLOSE, gKernel, cv::Point(-1, -1), 2);
+	cv::morphologyEx(local_ret, local_ret, cv::MORPH_OPEN, gKernel, cv::Point(-1, -1), 2);
 	cv::cvtColor(local_ret, local_ret, cv::COLOR_GRAY2BGR);
 }
 
@@ -71,6 +69,14 @@ cv::Rect moveCenterPoint(const cv::Mat& img, const cv::Mat& local_ret, cv::Rect2
 		cv::Rect contour_rect(minPoint(contours), maxPoint(contours));
 		auto center_delta = calcRectCenter(contour_rect) - cur_center;
 		auto center_dist = cv::norm(center_delta);
+
+		if (contour_rect.contains(cur_center))
+		{
+			correct_center_delta = center_delta;
+			target_rect = contour_rect;
+			break;
+		}
+
 		if (center_dist < min_center_dist)
 		{
 			min_center_dist = center_dist;
@@ -90,19 +96,19 @@ std::pair<cv::Mat, cv::Rect> BgSubtract(const cv::Mat& img, const cv::Mat& bg, c
 	cv::Rect target_rect;
 
 	cv::absdiff(img, bg, ret);
+	cv::bitwise_and(ret, gRoadMask, ret);
 	cv::cvtColor(ret, ret, cv::COLOR_BGR2GRAY);
-	cv::bitwise_and(ret, gRoadMask, mask);
 
 	auto local_ret = ret(rect).clone();
-	auto local_mask = mask(rect).clone();
-	localBinarize(local_ret, local_mask);
+	localBinarize(local_ret);
+	cv::bitwise_and(local_ret, gRoadMask(rect), local_ret);
 
 	cv::cvtColor(local_ret, local_ret, cv::COLOR_BGR2GRAY);
 	target_rect = moveCenterPoint(img, local_ret, rect);
 
 	local_ret = ret(rect).clone();
-	local_mask = mask(rect).clone();
-	localBinarize(local_ret, local_mask);
+	localBinarize(local_ret);
+	cv::bitwise_and(local_ret, gRoadMask(rect), local_ret);
 
 	return { local_ret, target_rect };
 }
@@ -114,6 +120,9 @@ std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::
 
 	mptr_bgController->Create(img, frame_count);
 	if (frame_count < static_cast<uint64_t>(mptr_bgController->GetExHistory()))
+		return results;
+
+	if (rect.width == 0.0f || rect.height == 0.0f)
 		return results;
 
 	auto [subtract, target_rect] = BgSubtract(img, mptr_bgController->GetBg(), rect);
@@ -131,7 +140,7 @@ void CornerDetector::DetectCorners(const cv::Mat& img, std::vector<std::vector<D
 	std::vector<Detection> corners;
 
 	cv::cvtColor(img, gray, cv::COLOR_BGR2GRAY);
-	cv::goodFeaturesToTrack(gray, corners, 20, 0.1, 10);
+	cv::goodFeaturesToTrack(gray, corners, 20, 0.1, 5);
 
 	for (auto itr = corners.begin(); itr != corners.end();)
 	{
