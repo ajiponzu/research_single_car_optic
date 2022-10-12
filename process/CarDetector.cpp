@@ -9,7 +9,8 @@ CarDetector::CarDetector(const std::wstring& model_path, const cv::Size& proc_im
 void CarDetector::Run(const cv::Mat& img)
 {
 	m_detectArea = m_usedDetectArea; // for rendering
-	m_detections = m_ptrDetector->Run(img, m_usedDetectArea);
+	m_detections = m_ptrDetector->Run(img, m_usedDetectArea, m_resetDetect);
+	m_resetDetect = false;
 }
 
 void CarDetector::ThisRenderer::Render(cv::Mat& img)
@@ -30,4 +31,10 @@ void CarDetector::ThisRenderer::DrawDetections(cv::Mat& img)
 
 	for (const auto& detection : detections[0])
 		cv::circle(img, detection, 2, cv::Scalar(255, 0, 0), 2);
+}
+
+void CarDetector::SetRect(const cv::Rect& rect)
+{
+	m_detectArea = m_usedDetectArea = rect;
+	m_resetDetect = true;
 }

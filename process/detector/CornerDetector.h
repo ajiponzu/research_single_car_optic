@@ -11,7 +11,7 @@ public:
 	}
 
 	virtual std::vector<std::vector<Detection>>
-		Run(const cv::Mat& img, cv::Rect2f& rect);
+		Run(const cv::Mat& img, cv::Rect2f& rect, const bool& reset);
 
 private:
 	std::unique_ptr<BgController> mptr_bgController;

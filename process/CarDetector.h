@@ -19,6 +19,7 @@ private:
 		ThisRenderer(CarDetector* ptr) : m_ptrDetector(ptr) {}
 	};
 
+	bool m_resetDetect = false;
 	cv::Rect2f m_detectArea, m_usedDetectArea;
 	std::unique_ptr<Detector> m_ptrDetector;
 	std::vector<std::string> m_classNames;
@@ -30,5 +31,5 @@ public:
 	ThisRenderer* CreateRenderer() { return new ThisRenderer(this); }
 
 	void Run(const cv::Mat& img);
-	void SetRect(const cv::Rect& rect) { m_detectArea = m_usedDetectArea = rect; }
+	void SetRect(const cv::Rect& rect);
 };

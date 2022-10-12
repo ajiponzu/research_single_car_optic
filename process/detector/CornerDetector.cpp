@@ -107,7 +107,7 @@ std::pair<cv::Mat, cv::Rect> BgSubtract(const cv::Mat& img, const cv::Mat& bg, c
 	return { local_ret, target_rect };
 }
 
-std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::Rect2f& rect)
+std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::Rect2f& rect, const bool& reset)
 {
 	std::vector<std::vector<Detection>> results{};
 	const auto& frame_count = GuiHandler::GetFrameCount();
