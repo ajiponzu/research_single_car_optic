@@ -15,13 +15,13 @@ void CarDetector::Run(const cv::Mat& img)
 void CarDetector::ThisRenderer::Render(cv::Mat& img)
 {
 	cv::Mat blockImg = img(m_ptrDetector->m_detectArea);
-	DrawDetections(blockImg, true);
+	DrawDetections(blockImg);
 	cv::rectangle(img, m_ptrDetector->m_detectArea, cv::Scalar(255, 0, 0), 2);
 	cv::line(img, cv::Point(0, 350), cv::Point(1920, 350), cv::Scalar(0, 255, 0), 3);
 	cv::line(img, cv::Point(0, 720), cv::Point(1920, 720), cv::Scalar(0, 255, 0), 3);
 }
 
-void CarDetector::ThisRenderer::DrawDetections(cv::Mat& img, bool label)
+void CarDetector::ThisRenderer::DrawDetections(cv::Mat& img)
 {
 	const auto& detections = m_ptrDetector->m_detections;
 

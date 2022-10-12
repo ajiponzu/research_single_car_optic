@@ -14,7 +14,7 @@ private:
 
 		void Render(cv::Mat& img) override;
 
-		void DrawDetections(cv::Mat& img, bool label = true);
+		void DrawDetections(cv::Mat& img);
 	public:
 		ThisRenderer(CarDetector* ptr) : m_ptrDetector(ptr) {}
 	};
