@@ -50,19 +50,19 @@ void localBinarize(cv::Mat& local_ret)
 {
 	cv::threshold(local_ret, local_ret, 0, 255, cv::THRESH_OTSU);
 	cv::morphologyEx(local_ret, local_ret, cv::MORPH_CLOSE, gKernel, cv::Point(-1, -1), 2);
-	cv::morphologyEx(local_ret, local_ret, cv::MORPH_OPEN, gKernel, cv::Point(-1, -1), 2);
 	cv::cvtColor(local_ret, local_ret, cv::COLOR_GRAY2BGR);
 }
 
-cv::Rect moveCenterPoint(const cv::Mat& img, const cv::Mat& local_ret, cv::Rect2f& rect)
+cv::Rect moveCenterPoint(const cv::Mat& img, const cv::Mat& local_ret, cv::Rect& rect)
 {
 	cv::Rect target_rect;
 	std::vector<std::vector<cv::Point>> contours_list;
 	cv::findContours(local_ret, contours_list, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
 	cv::Point correct_center_delta;
-	double min_center_dist = cv::norm(cv::Point((int)rect.width, (int)rect.height));
-	auto cur_center = calcRectCenter(rect) - static_cast<cv::Point>(rect.tl());
+	//double min_center_dist = cv::norm(cv::Point(rect.width, rect.height));
+	double min_center_dist = cv::norm(cv::Point(img.cols, img.rows));
+	auto cur_center = calcRectCenter(rect) - rect.tl();
 
 	for (const auto& contours : contours_list)
 	{
@@ -84,13 +84,54 @@ cv::Rect moveCenterPoint(const cv::Mat& img, const cv::Mat& local_ret, cv::Rect2
 			target_rect = contour_rect;
 		}
 	}
-	rect.x = std::clamp((float)rect.x + correct_center_delta.x, 0.0f, (float)img.cols - rect.width);
-	rect.y = std::clamp((float)rect.y + correct_center_delta.y, 0.0f, (float)img.rows - rect.height);
+	rect.x = std::clamp(rect.x + correct_center_delta.x, 0, img.cols - rect.width);
+	rect.y = std::clamp(rect.y + correct_center_delta.y, 0, img.rows - rect.height);
 
 	return target_rect;
 }
 
-std::pair<cv::Mat, cv::Rect> BgSubtract(const cv::Mat& img, const cv::Mat& bg, cv::Rect2f& rect)
+std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::Rect& rect, const bool& reset)
+{
+	std::vector<std::vector<Detection>> results{};
+	const auto& frame_count = GuiHandler::GetFrameCount();
+
+	mptr_bgController->Create(img, frame_count);
+	if (frame_count < static_cast<uint64_t>(mptr_bgController->GetExHistory()))
+		return results;
+
+	if (rect.width == 0 || rect.height == 0)
+		return results;
+
+	if (reset)
+		m_startFrameCount = GuiHandler::GetFrameCount();
+
+	auto [subtract, target_rect] = BgSubtract(img, mptr_bgController->GetBg(), rect);
+	if (target_rect.width == 0 || target_rect.height == 0)
+	{
+		std::cout << "target_rect is not found." << std::endl;
+		rect = cv::Rect();
+		return results;
+	}
+
+	auto frame_delta = GuiHandler::GetFrameCount() - m_startFrameCount;
+	if (frame_delta % 5 == 0)
+		DetectCorners(results, rect, target_rect);
+	else if (!m_prevCorners.empty())
+		OpticalFlow(results, rect, target_rect);
+	else
+	{
+		std::cout << "corners are not found." << std::endl;
+		rect = cv::Rect();
+		return results;
+	}
+
+	m_prevRect = rect;
+	m_prevSubtracted = m_Subtracted.clone();
+
+	return results;
+}
+
+std::pair<cv::Mat, cv::Rect> CornerDetector::BgSubtract(const cv::Mat& img, const cv::Mat& bg, cv::Rect& rect)
 {
 	cv::Mat ret{}, mask{};
 	cv::Rect target_rect;
@@ -105,42 +146,27 @@ std::pair<cv::Mat, cv::Rect> BgSubtract(const cv::Mat& img, const cv::Mat& bg, c
 
 	cv::cvtColor(local_ret, local_ret, cv::COLOR_BGR2GRAY);
 	target_rect = moveCenterPoint(img, local_ret, rect);
+	if (target_rect.width == 0 || target_rect.height == 0)
+		return {local_ret, target_rect};
 
 	local_ret = ret(rect).clone();
 	localBinarize(local_ret);
 	cv::bitwise_and(local_ret, gRoadMask(rect), local_ret);
 
+	auto org_target_rect = target_rect + rect.tl();
+	m_Subtracted = cv::Mat::zeros(img.size(), CV_8UC3);
+	local_ret(target_rect).copyTo(m_Subtracted(org_target_rect));
+
 	return { local_ret, target_rect };
 }
 
-std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::Rect2f& rect, const bool& reset)
+void CornerDetector::DetectCorners(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, const cv::Rect& target_rect)
 {
-	std::vector<std::vector<Detection>> results{};
-	const auto& frame_count = GuiHandler::GetFrameCount();
-
-	mptr_bgController->Create(img, frame_count);
-	if (frame_count < static_cast<uint64_t>(mptr_bgController->GetExHistory()))
-		return results;
-
-	if (rect.width == 0.0f || rect.height == 0.0f)
-		return results;
-
-	auto [subtract, target_rect] = BgSubtract(img, mptr_bgController->GetBg(), rect);
-	DetectCorners(subtract, results, target_rect);
-
-	rect.x = std::clamp(rect.x, 0.0f, (float)img.cols - rect.width);
-	rect.y = std::clamp(rect.y, 0.0f, (float)img.rows - rect.height);
-
-	return results;
-}
-
-void CornerDetector::DetectCorners(const cv::Mat& img, std::vector<std::vector<Detection>>& corners_list, const cv::Rect& target_rect)
-{
-	cv::Mat temp{}, gray{};
+	cv::Mat gray{};
 	std::vector<Detection> corners;
 
-	cv::cvtColor(img, gray, cv::COLOR_BGR2GRAY);
-	cv::goodFeaturesToTrack(gray, corners, 20, 0.1, 5);
+	cv::cvtColor(m_Subtracted, gray, cv::COLOR_BGR2GRAY);
+	cv::goodFeaturesToTrack(gray(rect), corners, 20, 0.09, 5);
 
 	for (auto itr = corners.begin(); itr != corners.end();)
 	{
@@ -151,4 +177,46 @@ void CornerDetector::DetectCorners(const cv::Mat& img, std::vector<std::vector<D
 	}
 
 	corners_list.push_back(corners);
+	m_prevCorners = corners;
+}
+
+void CornerDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, cv::Rect& target_rect)
+{
+	cv::Mat prev, cur;
+	std::vector<Detection> corners;
+	std::vector<Detection> good_corners;
+	std::vector<uchar> status{};
+	std::vector<float> err{};
+	cv::Rect area(m_prevRect.x - 5, m_prevRect.y - 5, m_prevRect.width + 10, m_prevRect.height + 10);
+	area |= rect;
+
+	cv::cvtColor(m_prevSubtracted, prev, cv::COLOR_BGR2GRAY);
+	cv::cvtColor(m_Subtracted, cur, cv::COLOR_BGR2GRAY);
+
+	auto delta = m_prevRect.tl() - area.tl();
+	for (auto& corner : m_prevCorners)
+		corner += static_cast<cv::Point2f>(delta);
+
+	cv::calcOpticalFlowPyrLK(prev(area), cur(area), m_prevCorners, corners, status, err, cv::Size(15, 15), 0);
+
+	delta = area.tl() - rect.tl();
+	for (size_t idx = 0; idx < corners.size(); idx++)
+	{
+		if (status[idx] == 1)
+		{
+			corners[idx] += static_cast<cv::Point2f>(delta);
+			good_corners.push_back(corners[idx]);
+		}
+	}
+
+	for (auto itr = good_corners.begin(); itr != good_corners.end();)
+	{
+		if (!target_rect.contains(*itr))
+			itr = good_corners.erase(itr);
+		else
+			itr++;
+	}
+
+	corners_list.push_back(good_corners);
+	m_prevCorners = good_corners;
 }

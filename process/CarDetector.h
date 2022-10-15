@@ -20,7 +20,7 @@ private:
 	};
 
 	bool m_resetDetect = false;
-	cv::Rect2f m_detectArea, m_usedDetectArea;
+	cv::Rect m_detectArea, m_usedDetectArea;
 	std::unique_ptr<Detector> m_ptrDetector;
 	std::vector<std::string> m_classNames;
 	std::vector<std::vector<Detection>> m_detections;
