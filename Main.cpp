@@ -8,11 +8,10 @@ int main()
 	CarDetector carDetector(L"", cv::Size(proc_imgsz, proc_imgsz));
 
 	GuiHandler::Initialize();
-	//GuiHandler::SetVideoResource("resources/hiru/input.mp4");
-	GuiHandler::SetVideoResource("resources/yugata/input.mp4");
+	GuiHandler::SetVideoResource("resources/hiru/input.mp4");
+	//GuiHandler::SetVideoResource("resources/yugata/input.mp4");
 	GuiHandler::SetRenderer(carDetector.CreateRenderer());
 
-	carDetector.SetRect(cv::Rect(0, 0, 1920, 1080));
 	while (GuiHandler::EventPoll())
 	{
 		if (GuiHandler::MouseClickedL())

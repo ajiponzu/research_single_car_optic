@@ -22,8 +22,10 @@ static constexpr auto base_path = "outputs/screenshots";
 
 void GuiHandler::ScreenShot()
 {
-	std::string path = std::format("{}/frame_{}.png", base_path, s_frameCount);
+	std::string path = std::format("{}/result_{}.png", base_path, s_frameCount);
 	cv::imwrite(path, s_displayImg);
+	path = std::format("{}/frame_{}.png", base_path, s_frameCount);
+	cv::imwrite(path, s_currentFrame);
 }
 
 void GuiHandler::RecvMouseMsg(int event, int x, int y, int flag, void* callBack)
