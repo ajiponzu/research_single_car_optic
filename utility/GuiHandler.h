@@ -55,6 +55,9 @@ public:
 	// レンダラーリソースの設定
 	static void SetRenderer(Renderer* ptrRenderer);
 
+	// ビデオリソースがある場合にそのビデオのFPSを取得する
+	static double GetFPS();
+
 	// クリックした座標を取得する
 	static const std::pair<int, int>& GetClickPoint();
 };

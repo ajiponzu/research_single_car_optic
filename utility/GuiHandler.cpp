@@ -115,6 +115,14 @@ void GuiHandler::SetRenderer(Renderer* ptrRenderer)
 	s_ptrRenderer.reset(ptrRenderer);
 }
 
+double GuiHandler::GetFPS()
+{
+	if (!s_useVideo)
+		return 0.0;
+
+	return s_videoCapture.get(cv::CAP_PROP_FPS);
+}
+
 const std::pair<int, int>& GuiHandler::GetClickPoint()
 {
 	std::cout << std::format("click: ({}, {})", s_clickPoint.first, s_clickPoint.second) << std::endl;

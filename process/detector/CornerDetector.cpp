@@ -1,5 +1,6 @@
 #include "CornerDetector.h"
 #include "../../utility/GuiHandler.h"
+#include "corner/SpeedIndicator.h"
 
 cv::Mat gKernel = cv::getStructuringElement(cv::MorphShapes::MORPH_RECT, cv::Size(3, 3));
 cv::Mat gRoadMask = cv::imread("resources/back_kaikai.png", cv::IMREAD_COLOR);
@@ -103,13 +104,19 @@ std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::
 		return results;
 
 	if (reset)
+	{
 		m_startFrameCount = GuiHandler::GetFrameCount();
+		m_sumDelta = 0.0;
+		m_speed = 0.0;
+	}
 
 	auto [subtract, target_rect] = BgSubtract(img, mptr_bgController->GetBg(), rect);
 	if (target_rect.width == 0 || target_rect.height == 0)
 	{
 		std::cout << "target_rect is not found." << std::endl;
 		rect = cv::Rect();
+		m_sumDelta = 0.0;
+		m_speed = 0.0;
 		return results;
 	}
 
@@ -122,6 +129,8 @@ std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::
 	{
 		std::cout << "corners are not found." << std::endl;
 		rect = cv::Rect();
+		m_sumDelta = 0.0;
+		m_speed = 0.0;
 		return results;
 	}
 
@@ -147,7 +156,7 @@ std::pair<cv::Mat, cv::Rect> CornerDetector::BgSubtract(const cv::Mat& img, cons
 	cv::cvtColor(local_ret, local_ret, cv::COLOR_BGR2GRAY);
 	target_rect = moveCenterPoint(img, local_ret, rect);
 	if (target_rect.width == 0 || target_rect.height == 0)
-		return {local_ret, target_rect};
+		return { local_ret, target_rect };
 
 	local_ret = ret(rect).clone();
 	localBinarize(local_ret);
@@ -183,8 +192,8 @@ void CornerDetector::DetectCorners(std::vector<std::vector<Detection>>& corners_
 void CornerDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, cv::Rect& target_rect)
 {
 	cv::Mat prev, cur;
-	std::vector<Detection> corners;
-	std::vector<Detection> good_corners;
+	std::vector<Detection> area_corners, area_prev_corners;
+	std::vector<Detection> good_corners, good_corners_prev;
 	std::vector<uchar> status{};
 	std::vector<float> err{};
 	cv::Rect area(m_prevRect.x - 5, m_prevRect.y - 5, m_prevRect.width + 10, m_prevRect.height + 10);
@@ -193,30 +202,47 @@ void CornerDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_li
 	cv::cvtColor(m_prevSubtracted, prev, cv::COLOR_BGR2GRAY);
 	cv::cvtColor(m_Subtracted, cur, cv::COLOR_BGR2GRAY);
 
-	auto delta = m_prevRect.tl() - area.tl();
+	const auto delta = m_prevRect.tl() - area.tl();
 	for (auto& corner : m_prevCorners)
-		corner += static_cast<cv::Point2f>(delta);
+		area_prev_corners.push_back(static_cast<cv::Point2f>(delta) + corner);
 
-	cv::calcOpticalFlowPyrLK(prev(area), cur(area), m_prevCorners, corners, status, err, cv::Size(15, 15), 0);
-
-	delta = area.tl() - rect.tl();
-	for (size_t idx = 0; idx < corners.size(); idx++)
+	cv::calcOpticalFlowPyrLK(prev(area), cur(area), area_prev_corners, area_corners, status, err, cv::Size(15, 15), 0);
+	for (size_t idx = 0; idx < area_corners.size(); idx++)
 	{
 		if (status[idx] == 1)
 		{
-			corners[idx] += static_cast<cv::Point2f>(delta);
-			good_corners.push_back(corners[idx]);
+			good_corners.push_back(area_corners[idx] + static_cast<cv::Point2f>(area.tl()));
+			good_corners_prev.push_back(area_prev_corners[idx] + static_cast<cv::Point2f>(area.tl()));
 		}
 	}
+	CalcSpeed(good_corners_prev, good_corners);
 
 	for (auto itr = good_corners.begin(); itr != good_corners.end();)
 	{
-		if (!target_rect.contains(*itr))
-			itr = good_corners.erase(itr);
-		else
+		*itr -= static_cast<cv::Point2f>(rect.tl());
+		if (target_rect.contains(*itr))
 			itr++;
+		else
+			itr = good_corners.erase(itr);
 	}
 
 	corners_list.push_back(good_corners);
 	m_prevCorners = good_corners;
+}
+
+void CornerDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const std::vector<Detection>& cur_corners)
+{
+	double sum_delta = 0.0;
+	for (size_t idx = 0; idx < cur_corners.size(); idx++)
+		sum_delta += SpeedIndicator::calcDelta(prev_corners[idx], cur_corners[idx], 0.1);
+
+	if (cur_corners.size() != 0)
+		sum_delta = sum_delta / cur_corners.size();
+
+	m_sumDelta += sum_delta;
+
+	double speed = SpeedIndicator::calcSpeed(sum_delta, GuiHandler::GetFPS());
+	std::cout << "answer_speed: " << speed << std::endl;
+	speed = SpeedIndicator::calcSpeed(m_sumDelta / (GuiHandler::GetFrameCount() - m_startFrameCount), GuiHandler::GetFPS());
+	std::cout << "answer_cul_speed: " << speed << std::endl;
 }

@@ -32,6 +32,9 @@
     <ClCompile Include="process\detector\corner\Utility.cpp">
       <Filter>process\detector\corner</Filter>
     </ClCompile>
+    <ClCompile Include="process\detector\corner\SpeedIndicator.cpp">
+      <Filter>process\detector\corner</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -57,6 +60,9 @@
       <Filter>process\detector\corner</Filter>
     </ClInclude>
     <ClInclude Include="process\detector\corner\Utility.h">
+      <Filter>process\detector\corner</Filter>
+    </ClInclude>
+    <ClInclude Include="process\detector\corner\SpeedIndicator.h">
       <Filter>process\detector\corner</Filter>
     </ClInclude>
   </ItemGroup>
