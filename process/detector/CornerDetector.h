@@ -25,6 +25,6 @@ private:
 
 	std::pair<cv::Mat, cv::Rect> BgSubtract(const cv::Mat& img, const cv::Mat& bg, cv::Rect& rect);
 	void DetectCorners(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, const cv::Rect& target_rect);
-	void OpticalFlow(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, cv::Rect& target_rect);
-	void CalcSpeed(const std::vector<Detection>& prev_corners, const std::vector<Detection>& cur_corners);
+	void OpticalFlow(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, const cv::Rect& target_rect);
+	void CalcSpeed(const std::vector<Detection>& prev_corners, const std::vector<Detection>& cur_corners, const cv::Rect& target_rect);
 };

@@ -189,7 +189,7 @@ void CornerDetector::DetectCorners(std::vector<std::vector<Detection>>& corners_
 	m_prevCorners = corners;
 }
 
-void CornerDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, cv::Rect& target_rect)
+void CornerDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, const cv::Rect& target_rect)
 {
 	cv::Mat prev, cur;
 	std::vector<Detection> area_corners, area_prev_corners;
@@ -215,7 +215,7 @@ void CornerDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_li
 			good_corners_prev.push_back(area_prev_corners[idx] + static_cast<cv::Point2f>(area.tl()));
 		}
 	}
-	CalcSpeed(good_corners_prev, good_corners);
+	CalcSpeed(good_corners_prev, good_corners, target_rect);
 
 	for (auto itr = good_corners.begin(); itr != good_corners.end();)
 	{
@@ -230,7 +230,7 @@ void CornerDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_li
 	m_prevCorners = good_corners;
 }
 
-void CornerDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const std::vector<Detection>& cur_corners)
+void CornerDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const std::vector<Detection>& cur_corners, const cv::Rect& target_rect)
 {
 	double sum_delta = 0.0;
 	for (size_t idx = 0; idx < cur_corners.size(); idx++)
