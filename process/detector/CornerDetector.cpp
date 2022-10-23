@@ -241,8 +241,8 @@ void CornerDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const
 
 	m_sumDelta += sum_delta;
 
-	double speed = SpeedIndicator::calcSpeed(sum_delta, GuiHandler::GetFPS());
+	double speed = SpeedIndicator::calcSpeed(sum_delta, 1, GuiHandler::GetFPS());
 	std::cout << "answer_speed: " << speed << std::endl;
-	speed = SpeedIndicator::calcSpeed(m_sumDelta / (GuiHandler::GetFrameCount() - m_startFrameCount), GuiHandler::GetFPS());
+	speed = SpeedIndicator::calcSpeed(m_sumDelta, GuiHandler::GetFrameCount() - m_startFrameCount, GuiHandler::GetFPS());
 	std::cout << "answer_cul_speed: " << speed << std::endl;
 }

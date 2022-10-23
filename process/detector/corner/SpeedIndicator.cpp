@@ -88,9 +88,9 @@ static cv::Point2f getPTransPoint(const cv::Mat& trans, const cv::Point2f& point
 	return dstCorners[0];
 }
 
-double SpeedIndicator::calcSpeed(const double& sumDelta, const double& fps)
+double SpeedIndicator::calcSpeed(const double& sumDelta, const uint64_t& time, const double& fps)
 {
-	auto speedPerS = sumDelta * fps;
+	auto speedPerS = (sumDelta / time) * fps;
 	return speedPerS * 3600;
 }
 
