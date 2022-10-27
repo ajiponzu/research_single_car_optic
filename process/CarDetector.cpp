@@ -27,8 +27,10 @@ void CarDetector::ThisRenderer::Render(cv::Mat& img)
 	if (GuiHandler::GetFrameCount() < 500)
 		line_color = cv::Scalar(0, 0, 255);
 
-	cv::line(img, cv::Point(0, 350), cv::Point(1920, 350), line_color, 3);
-	cv::line(img, cv::Point(0, 720), cv::Point(1920, 720), line_color, 3);
+	const auto& top_boundary = GuiHandler::GetTopBoundary();
+	const auto& bottom_boundary = GuiHandler::GetBottomBoundary();
+	cv::line(img, top_boundary.first, top_boundary.second, line_color, 3);
+	cv::line(img, bottom_boundary.first, bottom_boundary.second, line_color, 3);
 
 	//if (m_ptrDetector->m_detectArea.width > 0)
 	//	g_flag = true;

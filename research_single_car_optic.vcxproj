@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -23,6 +23,7 @@
     <ClCompile Include="process\CarDetector.cpp" />
     <ClCompile Include="process\detector\CornerDetector.cpp" />
     <ClCompile Include="process\detector\corner\BgController.cpp" />
+    <ClCompile Include="process\detector\corner\SpeedIndicator.cpp" />
     <ClCompile Include="process\detector\corner\Utility.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -35,6 +36,7 @@
     <ClInclude Include="process\DetectionTypes.h" />
     <ClInclude Include="process\detector\CornerDetector.h" />
     <ClInclude Include="process\detector\corner\BgController.h" />
+    <ClInclude Include="process\detector\corner\SpeedIndicator.h" />
     <ClInclude Include="process\detector\corner\Utility.h" />
     <ClInclude Include="process\detector\Detector.h" />
     <ClInclude Include="stdafx.h" />

@@ -402,3 +402,6 @@ resources/hiru/
 resources/yugata/
 resources/kumori/
 outputs/
+/resources/road_geo.png
+/resources/road_geo_half_half_half.png
+/resources/road_geo_half_half_half_revert.png

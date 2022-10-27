@@ -12,6 +12,9 @@ cv::Mat GuiHandler::s_displayImg{};
 cv::Mat GuiHandler::s_currentFrame{};
 cv::VideoCapture GuiHandler::s_videoCapture;
 std::unique_ptr<Renderer> GuiHandler::s_ptrRenderer = nullptr;
+std::pair<cv::Point, cv::Point> GuiHandler::s_topBoundary = { cv::Point(0, 350), cv::Point(1920, 350) };
+std::pair<cv::Point, cv::Point> GuiHandler::s_bottomBoundary = { cv::Point(0, 720), cv::Point(1920, 720) };
+cv::Rect GuiHandler::s_detectionAreaRect{};
 /* end */
 
 /* global変数 */
@@ -64,6 +67,7 @@ void GuiHandler::Initialize()
 
 	cv::namedWindow(gWndName, cv::WindowFlags::WINDOW_FULLSCREEN);
 	cv::setMouseCallback(gWndName, RecvMouseMsg);
+	s_detectionAreaRect = cv::Rect(s_topBoundary.first, s_bottomBoundary.second);
 }
 
 bool GuiHandler::EventPoll()
@@ -113,6 +117,14 @@ void GuiHandler::SetVideoResource(const std::string& path)
 void GuiHandler::SetRenderer(Renderer* ptrRenderer)
 {
 	s_ptrRenderer.reset(ptrRenderer);
+}
+
+double GuiHandler::GetFPS()
+{
+	if (!s_useVideo)
+		return 0.0;
+
+	return s_videoCapture.get(cv::CAP_PROP_FPS);
 }
 
 const std::pair<int, int>& GuiHandler::GetClickPoint()

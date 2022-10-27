@@ -14,6 +14,9 @@ private:
 	static cv::Mat s_currentFrame;
 	static cv::VideoCapture s_videoCapture;
 	static std::unique_ptr<Renderer> s_ptrRenderer;
+	static std::pair<cv::Point, cv::Point> s_topBoundary;
+	static std::pair<cv::Point, cv::Point> s_bottomBoundary;
+	static cv::Rect s_detectionAreaRect;
 
 	// スクリーンショットを撮影する
 	static void ScreenShot();
@@ -55,6 +58,13 @@ public:
 	// レンダラーリソースの設定
 	static void SetRenderer(Renderer* ptrRenderer);
 
+	// ビデオリソースがある場合にそのビデオのFPSを取得する
+	static double GetFPS();
+
 	// クリックした座標を取得する
 	static const std::pair<int, int>& GetClickPoint();
+
+	static const std::pair<cv::Point, cv::Point>& GetTopBoundary() { return s_topBoundary; }
+	static const std::pair<cv::Point, cv::Point>& GetBottomBoundary() { return s_bottomBoundary; }
+	static const cv::Rect& GetDetectionRect() { return s_detectionAreaRect; }
 };
