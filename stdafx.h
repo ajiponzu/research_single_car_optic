@@ -18,5 +18,6 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <unordered_set>
 #include <vector>
 /* end */
