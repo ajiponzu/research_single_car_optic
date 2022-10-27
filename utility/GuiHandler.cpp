@@ -15,6 +15,7 @@ std::unique_ptr<Renderer> GuiHandler::s_ptrRenderer = nullptr;
 std::pair<cv::Point, cv::Point> GuiHandler::s_topBoundary = { cv::Point(0, 350), cv::Point(1920, 350) };
 std::pair<cv::Point, cv::Point> GuiHandler::s_bottomBoundary = { cv::Point(0, 720), cv::Point(1920, 720) };
 cv::Rect GuiHandler::s_detectionAreaRect{};
+std::unordered_set<int>  GuiHandler::s_keyEventTable{};
 /* end */
 
 /* global変数 */
@@ -52,13 +53,20 @@ void GuiHandler::HandleInputKey(const int& key)
 	{
 	case 27: // ESCキー
 		s_wndUpdate = false;
+		s_keyEventTable.insert(27);
 		break;
 	case ' ': // Spaceキー
 		ScreenShot();
+		s_keyEventTable.insert(static_cast<int>(' '));
 		break;
 	default:
 		break;
 	}
+}
+
+void GuiHandler::ClearEventFlags()
+{
+	s_keyEventTable.clear();
 }
 
 void GuiHandler::Initialize()
@@ -99,6 +107,7 @@ void GuiHandler::Render()
 		s_ptrRenderer->Render(s_displayImg);
 
 	cv::imshow(gWndName, s_displayImg);
+	ClearEventFlags();
 }
 
 void GuiHandler::SetVideoResource(const std::string& path)

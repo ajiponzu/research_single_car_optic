@@ -249,5 +249,10 @@ void CornerDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const
 	m_sumDelta += sum_delta;
 
 	auto speed = SpeedIndicator::calcSpeed(m_sumDelta, m_opticCount, GuiHandler::GetFPS());
-	std::cout << "answer_cul_speed: " << speed << std::endl;
+	if (GuiHandler::GetKeyEvent(static_cast<int>(' ')))
+	{
+		std::cout << "current_frame_count: " << GuiHandler::GetFrameCount() << std::endl;
+		std::cout << "trace_time: " << m_opticCount << std::endl;
+		std::cout << "answer_cul_speed: " << speed << std::endl;
+	}
 }

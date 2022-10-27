@@ -17,6 +17,7 @@ private:
 	static std::pair<cv::Point, cv::Point> s_topBoundary;
 	static std::pair<cv::Point, cv::Point> s_bottomBoundary;
 	static cv::Rect s_detectionAreaRect;
+	static std::unordered_set<int> s_keyEventTable;
 
 	// スクリーンショットを撮影する
 	static void ScreenShot();
@@ -26,6 +27,9 @@ private:
 
 	// キーボード入力を処理する
 	static void HandleInputKey(const int& key);
+
+	// イベントフラグをすべてクリアする
+	static void ClearEventFlags();
 
 	GuiHandler() = delete;
 
@@ -67,4 +71,6 @@ public:
 	static const std::pair<cv::Point, cv::Point>& GetTopBoundary() { return s_topBoundary; }
 	static const std::pair<cv::Point, cv::Point>& GetBottomBoundary() { return s_bottomBoundary; }
 	static const cv::Rect& GetDetectionRect() { return s_detectionAreaRect; }
+
+	static bool GetKeyEvent(const int& keyCode) { return s_keyEventTable.find(keyCode) != s_keyEventTable.end(); }
 };
