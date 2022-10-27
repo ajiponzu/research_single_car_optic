@@ -56,7 +56,6 @@ void GuiHandler::HandleInputKey(const int& key)
 		s_keyEventTable.insert(27);
 		break;
 	case ' ': // Spaceキー
-		ScreenShot();
 		s_keyEventTable.insert(static_cast<int>(' '));
 		break;
 	default:
@@ -105,6 +104,9 @@ void GuiHandler::Render()
 {
 	if (s_ptrRenderer)
 		s_ptrRenderer->Render(s_displayImg);
+
+	if (GetKeyEvent(static_cast<int>(' ')))
+		ScreenShot();
 
 	cv::imshow(gWndName, s_displayImg);
 	ClearEventFlags();
