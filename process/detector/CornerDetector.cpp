@@ -234,7 +234,6 @@ void CornerDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_li
 
 	corners_list.push_back(good_corners);
 	m_prevCorners = good_corners;
-	m_opticCount++;
 }
 
 void CornerDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const std::vector<Detection>& cur_corners, const cv::Rect& target_rect)
@@ -247,9 +246,11 @@ void CornerDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const
 		sum_delta = sum_delta / cur_corners.size();
 
 	m_sumDelta += sum_delta;
+	m_opticCount++;
 
 	auto speed = SpeedIndicator::calcSpeed(m_sumDelta, m_opticCount, GuiHandler::GetFPS());
-	if (GuiHandler::GetKeyEvent(static_cast<int>(' ')))
+	//if (GuiHandler::GetKeyEvent(static_cast<int>(' ')))
+	if (true)
 	{
 		std::cout << "current_frame_count: " << GuiHandler::GetFrameCount() << std::endl;
 		std::cout << "trace_time: " << m_opticCount << std::endl;

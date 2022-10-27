@@ -11,24 +11,24 @@ static const std::vector<std::vector<cv::Point2f>> gBfs =
 	//},
 	{
 		// 左端
-		cv::Point2f(656, 353),
-		cv::Point2f(669, 720),
-		cv::Point2f(549, 345),
-		cv::Point2f(483, 714),
+		cv::Point2f(665, 218),
+		cv::Point2f(576, 217),
+		cv::Point2f(478, 876),
+		cv::Point2f(816, 869),
 	},
 	{
 		// 中央
-		cv::Point2f(1078, 359),
-		cv::Point2f(946, 717),
-		cv::Point2f(1160, 355),
-		cv::Point2f(1108, 724)
+		cv::Point2f(1042, 320),
+		cv::Point2f(1147, 317),
+		cv::Point2f(831, 864),
+		cv::Point2f(1011, 894)
 	},
 	{
 		// 右端
-		cv::Point2f(1212, 355),
-		cv::Point2f(1340, 718),
-		cv::Point2f(1290, 349),
-		cv::Point2f(1489, 718)
+		cv::Point2f(1158, 328),
+		cv::Point2f(1266, 325),
+		cv::Point2f(1297, 904),
+		cv::Point2f(1516, 909)
 	},
 };
 
@@ -43,24 +43,24 @@ static const std::vector<std::vector<cv::Point2f>> gAfs =
 	//},
 	{
 		//左端
-		cv::Point2f(2162, 134),
-		cv::Point2f(516, 3288),
-		cv::Point2f(1980, 29),
-		cv::Point2f(335, 3093),
+		cv::Point2f(3160, 3207),
+		cv::Point2f(2976, 3137),
+		cv::Point2f(565, 7610),
+		cv::Point2f(831, 7759),
 	},
 	{
 		// 中央
-		cv::Point2f(2255, 345),
-		cv::Point2f(625, 2721),
-		cv::Point2f(2342, 383),
-		cv::Point2f(689, 2785)
+		cv::Point2f(2625, 5098),
+		cv::Point2f(2757, 5177),
+		cv::Point2f(805, 7785),
+		cv::Point2f(928, 7846)
 	},
 	{
 		// 右端
-		cv::Point2f(2481, 307),
-		cv::Point2f(961, 2748),
-		cv::Point2f(2538, 334),
-		cv::Point2f(1014, 2793)
+		cv::Point2f(2766, 5194),
+		cv::Point2f(2897, 5264),
+		cv::Point2f(1042, 7916),
+		cv::Point2f(1147, 7995)
 	},
 };
 
