@@ -8,4 +8,3 @@ namespace SpeedIndicator
 	double calcDelta(const cv::Point2f& oldPoint, const cv::Point2f& newPoint, const double& magni);
 	/* end */
 };
-

@@ -109,6 +109,6 @@ double SpeedIndicator::calcDelta(const cv::Point2f& oldPoint, const cv::Point2f&
 	auto trans = cv::getPerspectiveTransform(gBfs[roadId], gAfs[roadId]);
 	const auto& before = getPTransPoint(trans, oldPoint);
 	const auto& after = getPTransPoint(trans, newPoint);
-	
+
 	return ::calcDistance(before, after, magni) * 0.001;
 }

@@ -18,6 +18,7 @@ private:
 	cv::Mat m_prevSubtracted;
 	cv::Mat m_Subtracted;
 	uint64_t m_startFrameCount = 0;
+	uint64_t m_opticCount = 0;
 	cv::Rect m_prevRect;
 	std::vector<Detection> m_prevCorners;
 	double m_sumDelta = 0.0;

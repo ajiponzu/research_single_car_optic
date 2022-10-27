@@ -106,6 +106,7 @@ std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::
 	if (reset)
 	{
 		m_startFrameCount = GuiHandler::GetFrameCount();
+		m_opticCount = 0;
 		m_sumDelta = 0.0;
 		m_speed = 0.0;
 	}
@@ -115,6 +116,7 @@ std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::
 	{
 		std::cout << "target_rect is not found." << std::endl;
 		rect = cv::Rect();
+		m_opticCount = 0;
 		m_sumDelta = 0.0;
 		m_speed = 0.0;
 		return results;
@@ -129,6 +131,7 @@ std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::
 	{
 		std::cout << "corners are not found." << std::endl;
 		rect = cv::Rect();
+		m_opticCount = 0;
 		m_sumDelta = 0.0;
 		m_speed = 0.0;
 		return results;
@@ -144,6 +147,9 @@ std::pair<cv::Mat, cv::Rect> CornerDetector::BgSubtract(const cv::Mat& img, cons
 {
 	cv::Mat ret{}, mask{};
 	cv::Rect target_rect;
+
+	if (!GuiHandler::GetDetectionRect().contains(calcRectCenter(rect)))
+		return { ret, target_rect };
 
 	cv::absdiff(img, bg, ret);
 	cv::bitwise_and(ret, gRoadMask, ret);
@@ -228,6 +234,7 @@ void CornerDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_li
 
 	corners_list.push_back(good_corners);
 	m_prevCorners = good_corners;
+	m_opticCount++;
 }
 
 void CornerDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const std::vector<Detection>& cur_corners, const cv::Rect& target_rect)
@@ -241,8 +248,6 @@ void CornerDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const
 
 	m_sumDelta += sum_delta;
 
-	double speed = SpeedIndicator::calcSpeed(sum_delta, 1, GuiHandler::GetFPS());
-	std::cout << "answer_speed: " << speed << std::endl;
-	speed = SpeedIndicator::calcSpeed(m_sumDelta, GuiHandler::GetFrameCount() - m_startFrameCount, GuiHandler::GetFPS());
+	auto speed = SpeedIndicator::calcSpeed(m_sumDelta, m_opticCount, GuiHandler::GetFPS());
 	std::cout << "answer_cul_speed: " << speed << std::endl;
 }
