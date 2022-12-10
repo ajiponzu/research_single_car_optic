@@ -21,10 +21,10 @@
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="process\CarDetector.cpp" />
-    <ClCompile Include="process\detector\CornerDetector.cpp" />
-    <ClCompile Include="process\detector\corner\BgController.cpp" />
-    <ClCompile Include="process\detector\corner\SpeedIndicator.cpp" />
-    <ClCompile Include="process\detector\corner\Utility.cpp" />
+    <ClCompile Include="process\detector\CenterDetector.cpp" />
+    <ClCompile Include="process\detector\center\BgController.cpp" />
+    <ClCompile Include="process\detector\center\SpeedIndicator.cpp" />
+    <ClCompile Include="process\detector\center\Utility.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -34,10 +34,10 @@
   <ItemGroup>
     <ClInclude Include="process\CarDetector.h" />
     <ClInclude Include="process\DetectionTypes.h" />
-    <ClInclude Include="process\detector\CornerDetector.h" />
-    <ClInclude Include="process\detector\corner\BgController.h" />
-    <ClInclude Include="process\detector\corner\SpeedIndicator.h" />
-    <ClInclude Include="process\detector\corner\Utility.h" />
+    <ClInclude Include="process\detector\CenterDetector.h" />
+    <ClInclude Include="process\detector\center\BgController.h" />
+    <ClInclude Include="process\detector\center\SpeedIndicator.h" />
+    <ClInclude Include="process\detector\center\Utility.h" />
     <ClInclude Include="process\detector\Detector.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="utility\GuiHandler.h" />

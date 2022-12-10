@@ -1,11 +1,11 @@
 #pragma once
 #include "Detector.h"
-#include "corner/BgController.h"
+#include "center/BgController.h"
 
-class CornerDetector : public Detector
+class CenterDetector : public Detector
 {
 public:
-	CornerDetector()
+	CenterDetector()
 	{
 		mptr_bgController.reset(new BgController());
 	}

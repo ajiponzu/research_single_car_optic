@@ -1,6 +1,6 @@
-#include "CornerDetector.h"
+#include "CenterDetector.h"
 #include "../../utility/GuiHandler.h"
-#include "corner/SpeedIndicator.h"
+#include "center/SpeedIndicator.h"
 
 cv::Mat gKernel = cv::getStructuringElement(cv::MorphShapes::MORPH_RECT, cv::Size(3, 3));
 cv::Mat gRoadMask = cv::imread("resources/back_kaikai.png", cv::IMREAD_COLOR);
@@ -91,7 +91,7 @@ cv::Rect moveCenterPoint(const cv::Mat& img, const cv::Mat& local_ret, cv::Rect&
 	return target_rect;
 }
 
-std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::Rect& rect, const bool& reset)
+std::vector<std::vector<Detection>> CenterDetector::Run(const cv::Mat& img, cv::Rect& rect, const bool& reset)
 {
 	std::vector<std::vector<Detection>> results{};
 	const auto& frame_count = GuiHandler::GetFrameCount();
@@ -143,7 +143,7 @@ std::vector<std::vector<Detection>> CornerDetector::Run(const cv::Mat& img, cv::
 	return results;
 }
 
-std::pair<cv::Mat, cv::Rect> CornerDetector::BgSubtract(const cv::Mat& img, const cv::Mat& bg, cv::Rect& rect)
+std::pair<cv::Mat, cv::Rect> CenterDetector::BgSubtract(const cv::Mat& img, const cv::Mat& bg, cv::Rect& rect)
 {
 	cv::Mat ret{}, mask{};
 	cv::Rect target_rect;
@@ -175,7 +175,7 @@ std::pair<cv::Mat, cv::Rect> CornerDetector::BgSubtract(const cv::Mat& img, cons
 	return { local_ret, target_rect };
 }
 
-void CornerDetector::DetectCorners(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, const cv::Rect& target_rect)
+void CenterDetector::DetectCorners(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, const cv::Rect& target_rect)
 {
 	cv::Mat gray{};
 	std::vector<Detection> corners;
@@ -195,7 +195,7 @@ void CornerDetector::DetectCorners(std::vector<std::vector<Detection>>& corners_
 	m_prevCorners = corners;
 }
 
-void CornerDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, const cv::Rect& target_rect)
+void CenterDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, const cv::Rect& target_rect)
 {
 	cv::Mat prev, cur;
 	std::vector<Detection> area_corners, area_prev_corners;
@@ -236,7 +236,7 @@ void CornerDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_li
 	m_prevCorners = good_corners;
 }
 
-void CornerDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const std::vector<Detection>& cur_corners, const cv::Rect& target_rect)
+void CenterDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const std::vector<Detection>& cur_corners, const cv::Rect& target_rect)
 {
 	double sum_delta = 0.0;
 	for (size_t idx = 0; idx < cur_corners.size(); idx++)
@@ -249,8 +249,8 @@ void CornerDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const
 	m_opticCount++;
 
 	auto speed = SpeedIndicator::calcSpeed(m_sumDelta, m_opticCount, GuiHandler::GetFPS());
-	//if (GuiHandler::GetKeyEvent(static_cast<int>(' ')))
-	if (true)
+	if (GuiHandler::GetKeyEvent(static_cast<int>(' ')))
+	//if (true)
 	{
 		std::cout << "current_frame_count: " << GuiHandler::GetFrameCount() << std::endl;
 		std::cout << "trace_time: " << m_opticCount << std::endl;
