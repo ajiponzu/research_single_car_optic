@@ -110,5 +110,8 @@ double SpeedIndicator::calcDelta(const cv::Point2f& oldPoint, const cv::Point2f&
 	const auto& before = getPTransPoint(trans, oldPoint);
 	const auto& after = getPTransPoint(trans, newPoint);
 
+	//std::cout << "before: " << before << std::endl;
+	//std::cout << "after: " << after << std::endl;
+
 	return ::calcDistance(before, after, magni) * 0.001;
 }

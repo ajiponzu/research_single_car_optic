@@ -54,41 +54,49 @@ void localBinarize(cv::Mat& local_ret)
 	cv::cvtColor(local_ret, local_ret, cv::COLOR_GRAY2BGR);
 }
 
-cv::Rect moveCenterPoint(const cv::Mat& img, const cv::Mat& local_ret, cv::Rect& rect)
+std::pair<cv::Rect, cv::Point2d> moveCenterPoint(const cv::Mat& img, const cv::Mat& local_ret, cv::Rect& rect)
 {
 	cv::Rect target_rect;
-	std::vector<std::vector<cv::Point>> contours_list;
-	cv::findContours(local_ret, contours_list, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+	cv::Point2d ret_center;
+	std::vector<std::vector<cv::Point>> contours;
+	cv::findContours(local_ret, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
 	cv::Point correct_center_delta;
 	//double min_center_dist = cv::norm(cv::Point(rect.width, rect.height));
 	double min_center_dist = cv::norm(cv::Point(img.cols, img.rows));
 	auto cur_center = calcRectCenter(rect) - rect.tl();
 
-	for (const auto& contours : contours_list)
+	for (const auto& contour : contours)
 	{
-		cv::Rect contour_rect(minPoint(contours), maxPoint(contours));
+		cv::Rect contour_rect(minPoint(contour), maxPoint(contour));
 		auto center_delta = calcRectCenter(contour_rect) - cur_center;
 		auto center_dist = cv::norm(center_delta);
 
-		if (contour_rect.contains(cur_center))
+		const auto lamda = [&]
 		{
 			correct_center_delta = center_delta;
 			target_rect = contour_rect;
+			auto moments = cv::moments(contour);
+			ret_center = cv::Point2d(moments.m10 / moments.m00, moments.m01 / moments.m00);
+			ret_center += static_cast<cv::Point2d>(rect.tl());
+		};
+
+		if (contour_rect.contains(cur_center))
+		{
+			lamda();
 			break;
 		}
 
 		if (center_dist < min_center_dist)
 		{
 			min_center_dist = center_dist;
-			correct_center_delta = center_delta;
-			target_rect = contour_rect;
+			lamda();
 		}
 	}
 	rect.x = std::clamp(rect.x + correct_center_delta.x, 0, img.cols - rect.width);
 	rect.y = std::clamp(rect.y + correct_center_delta.y, 0, img.rows - rect.height);
 
-	return target_rect;
+	return { target_rect, ret_center };
 }
 
 std::vector<std::vector<Detection>> CenterDetector::Run(const cv::Mat& img, cv::Rect& rect, const bool& reset)
@@ -106,7 +114,7 @@ std::vector<std::vector<Detection>> CenterDetector::Run(const cv::Mat& img, cv::
 	if (reset)
 	{
 		m_startFrameCount = GuiHandler::GetFrameCount();
-		m_opticCount = 0;
+		m_trackingCount = 0;
 		m_sumDelta = 0.0;
 		m_speed = 0.0;
 	}
@@ -116,29 +124,19 @@ std::vector<std::vector<Detection>> CenterDetector::Run(const cv::Mat& img, cv::
 	{
 		std::cout << "target_rect is not found." << std::endl;
 		rect = cv::Rect();
-		m_opticCount = 0;
+		m_trackingCount = 0;
 		m_sumDelta = 0.0;
 		m_speed = 0.0;
 		return results;
 	}
 
-	auto frame_delta = GuiHandler::GetFrameCount() - m_startFrameCount;
-	if (frame_delta % 5 == 0)
-		DetectCorners(results, rect, target_rect);
-	else if (!m_prevCorners.empty())
-		OpticalFlow(results, rect, target_rect);
+	if (!reset)
+		CalcSpeed(target_rect);
 	else
-	{
-		std::cout << "corners are not found." << std::endl;
-		rect = cv::Rect();
-		m_opticCount = 0;
-		m_sumDelta = 0.0;
-		m_speed = 0.0;
-		return results;
-	}
+		m_prevCenter = m_center;
 
-	m_prevRect = rect;
 	m_prevSubtracted = m_Subtracted.clone();
+	results.push_back({ target_rect });
 
 	return results;
 }
@@ -160,7 +158,10 @@ std::pair<cv::Mat, cv::Rect> CenterDetector::BgSubtract(const cv::Mat& img, cons
 	cv::bitwise_and(local_ret, gRoadMask(rect), local_ret);
 
 	cv::cvtColor(local_ret, local_ret, cv::COLOR_BGR2GRAY);
-	target_rect = moveCenterPoint(img, local_ret, rect);
+	auto center_pair = moveCenterPoint(img, local_ret, rect);
+	target_rect = center_pair.first;
+	m_center = center_pair.second;
+
 	if (target_rect.width == 0 || target_rect.height == 0)
 		return { local_ret, target_rect };
 
@@ -175,85 +176,17 @@ std::pair<cv::Mat, cv::Rect> CenterDetector::BgSubtract(const cv::Mat& img, cons
 	return { local_ret, target_rect };
 }
 
-void CenterDetector::DetectCorners(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, const cv::Rect& target_rect)
+void CenterDetector::CalcSpeed(const cv::Rect& target_rect)
 {
-	cv::Mat gray{};
-	std::vector<Detection> corners;
-
-	cv::cvtColor(m_Subtracted, gray, cv::COLOR_BGR2GRAY);
-	cv::goodFeaturesToTrack(gray(rect), corners, 20, 0.09, 5);
-
-	for (auto itr = corners.begin(); itr != corners.end();)
-	{
-		if (!target_rect.contains(*itr))
-			itr = corners.erase(itr);
-		else
-			itr++;
-	}
-
-	corners_list.push_back(corners);
-	m_prevCorners = corners;
-}
-
-void CenterDetector::OpticalFlow(std::vector<std::vector<Detection>>& corners_list, const cv::Rect& rect, const cv::Rect& target_rect)
-{
-	cv::Mat prev, cur;
-	std::vector<Detection> area_corners, area_prev_corners;
-	std::vector<Detection> good_corners, good_corners_prev;
-	std::vector<uchar> status{};
-	std::vector<float> err{};
-	cv::Rect area(m_prevRect.x - 5, m_prevRect.y - 5, m_prevRect.width + 10, m_prevRect.height + 10);
-	area |= rect;
-
-	cv::cvtColor(m_prevSubtracted, prev, cv::COLOR_BGR2GRAY);
-	cv::cvtColor(m_Subtracted, cur, cv::COLOR_BGR2GRAY);
-
-	const auto delta = m_prevRect.tl() - area.tl();
-	for (auto& corner : m_prevCorners)
-		area_prev_corners.push_back(static_cast<cv::Point2f>(delta) + corner);
-
-	cv::calcOpticalFlowPyrLK(prev(area), cur(area), area_prev_corners, area_corners, status, err, cv::Size(15, 15), 0);
-	for (size_t idx = 0; idx < area_corners.size(); idx++)
-	{
-		if (status[idx] == 1)
-		{
-			good_corners.push_back(area_corners[idx] + static_cast<cv::Point2f>(area.tl()));
-			good_corners_prev.push_back(area_prev_corners[idx] + static_cast<cv::Point2f>(area.tl()));
-		}
-	}
-	CalcSpeed(good_corners_prev, good_corners, target_rect);
-
-	for (auto itr = good_corners.begin(); itr != good_corners.end();)
-	{
-		*itr -= static_cast<cv::Point2f>(rect.tl());
-		if (target_rect.contains(*itr))
-			itr++;
-		else
-			itr = good_corners.erase(itr);
-	}
-
-	corners_list.push_back(good_corners);
-	m_prevCorners = good_corners;
-}
-
-void CenterDetector::CalcSpeed(const std::vector<Detection>& prev_corners, const std::vector<Detection>& cur_corners, const cv::Rect& target_rect)
-{
-	double sum_delta = 0.0;
-	for (size_t idx = 0; idx < cur_corners.size(); idx++)
-		sum_delta += SpeedIndicator::calcDelta(prev_corners[idx], cur_corners[idx], 0.1);
-
-	if (cur_corners.size() != 0)
-		sum_delta = sum_delta / cur_corners.size();
-
-	m_sumDelta += sum_delta;
-	m_opticCount++;
-
-	auto speed = SpeedIndicator::calcSpeed(m_sumDelta, m_opticCount, GuiHandler::GetFPS());
-	if (GuiHandler::GetKeyEvent(static_cast<int>(' ')))
-	//if (true)
+	m_trackingCount++;
+	m_sumDelta = SpeedIndicator::calcDelta(m_prevCenter, m_center, 0.1);
+	auto speed = SpeedIndicator::calcSpeed(m_sumDelta, m_trackingCount, GuiHandler::GetFPS());
+	//if (GuiHandler::GetKeyEvent(static_cast<int>(' ')))
+	if (true)
 	{
 		std::cout << "current_frame_count: " << GuiHandler::GetFrameCount() << std::endl;
-		std::cout << "trace_time: " << m_opticCount << std::endl;
+		std::cout << "trace_time: " << m_trackingCount << std::endl;
 		std::cout << "answer_cul_speed: " << speed << std::endl;
+		std::cout << "sumDelta: " << m_sumDelta << std::endl;
 	}
 }

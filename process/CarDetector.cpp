@@ -47,7 +47,7 @@ void CarDetector::ThisRenderer::DrawDetections(cv::Mat& img)
 		return;
 
 	for (const auto& detection : detections[0])
-		cv::circle(img, detection, 2, cv::Scalar(255, 0, 0), 2);
+		cv::rectangle(img, detection, cv::Scalar(255, 0, 0), 2);
 }
 
 void CarDetector::SetRect(const cv::Rect& rect)

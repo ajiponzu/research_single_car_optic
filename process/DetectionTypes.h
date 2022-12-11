@@ -1,3 +1,3 @@
 #pragma once
 
-using Detection = cv::Point2f;
+using Detection = cv::Rect;
