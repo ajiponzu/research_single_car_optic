@@ -1,12 +1,12 @@
 #include "CarDetector.h"
-#include "detector/CornerDetector.h"
+#include "detector/CenterDetector.h"
 #include "../utility/GuiHandler.h"
 
 bool g_flag = false;
 
 CarDetector::CarDetector(const std::wstring& model_path, const cv::Size& proc_imgsz)
 {
-	m_ptrDetector.reset(new CornerDetector());
+	m_ptrDetector.reset(new CenterDetector());
 }
 
 void CarDetector::Run(const cv::Mat& img)
@@ -47,7 +47,7 @@ void CarDetector::ThisRenderer::DrawDetections(cv::Mat& img)
 		return;
 
 	for (const auto& detection : detections[0])
-		cv::circle(img, detection, 2, cv::Scalar(255, 0, 0), 2);
+		cv::rectangle(img, detection, cv::Scalar(255, 0, 0), 2);
 }
 
 void CarDetector::SetRect(const cv::Rect& rect)

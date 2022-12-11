@@ -10,7 +10,7 @@
     <Filter Include="process\detector">
       <UniqueIdentifier>{99bc2174-3405-4910-8e53-a37296c2672e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="process\detector\corner">
+    <Filter Include="process\detector\center">
       <UniqueIdentifier>{ae51134c-41df-4e9c-ab09-37cef4cd3ef3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -23,17 +23,17 @@
     <ClCompile Include="process\CarDetector.cpp">
       <Filter>process</Filter>
     </ClCompile>
-    <ClCompile Include="process\detector\CornerDetector.cpp">
+    <ClCompile Include="process\detector\CenterDetector.cpp">
       <Filter>process\detector</Filter>
     </ClCompile>
-    <ClCompile Include="process\detector\corner\BgController.cpp">
-      <Filter>process\detector\corner</Filter>
+    <ClCompile Include="process\detector\center\BgController.cpp">
+      <Filter>process\detector\center</Filter>
     </ClCompile>
-    <ClCompile Include="process\detector\corner\Utility.cpp">
-      <Filter>process\detector\corner</Filter>
+    <ClCompile Include="process\detector\center\SpeedIndicator.cpp">
+      <Filter>process\detector\center</Filter>
     </ClCompile>
-    <ClCompile Include="process\detector\corner\SpeedIndicator.cpp">
-      <Filter>process\detector\corner</Filter>
+    <ClCompile Include="process\detector\center\Utility.cpp">
+      <Filter>process\detector\center</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -50,20 +50,20 @@
     <ClInclude Include="process\DetectionTypes.h">
       <Filter>process</Filter>
     </ClInclude>
-    <ClInclude Include="process\detector\CornerDetector.h">
+    <ClInclude Include="process\detector\CenterDetector.h">
       <Filter>process\detector</Filter>
     </ClInclude>
     <ClInclude Include="process\detector\Detector.h">
       <Filter>process\detector</Filter>
     </ClInclude>
-    <ClInclude Include="process\detector\corner\BgController.h">
-      <Filter>process\detector\corner</Filter>
+    <ClInclude Include="process\detector\center\BgController.h">
+      <Filter>process\detector\center</Filter>
     </ClInclude>
-    <ClInclude Include="process\detector\corner\Utility.h">
-      <Filter>process\detector\corner</Filter>
+    <ClInclude Include="process\detector\center\SpeedIndicator.h">
+      <Filter>process\detector\center</Filter>
     </ClInclude>
-    <ClInclude Include="process\detector\corner\SpeedIndicator.h">
-      <Filter>process\detector\corner</Filter>
+    <ClInclude Include="process\detector\center\Utility.h">
+      <Filter>process\detector\center</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
